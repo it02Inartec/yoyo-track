@@ -1,0 +1,71 @@
+﻿.app-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.sidebar {
+  background: #111827;
+  color: #f9fafb;
+  padding: 1.5rem 1rem;
+  border-right: 1px solid #1f2937;
+}
+
+.sidebar__title {
+  margin: 0 0 1.5rem;
+  font-size: 1.25rem;
+  color: #f9fafb;
+}
+
+.sidebar__menu {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.sidebar__item {
+  border: 1px solid #374151;
+  background: #1f2937;
+  color: #e5e7eb;
+  border-radius: 8px;
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.sidebar__item:hover {
+  background: #374151;
+}
+
+.sidebar__item.is-active {
+  background: #f59e0b;
+  color: #111827;
+  border-color: #f59e0b;
+  font-weight: 600;
+}
+
+.content {
+  padding: 1.5rem;
+}
+
+.content__header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #111827;
+}
+
+@media (max-width: 900px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid #1f2937;
+  }
+
+  .sidebar__menu {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
