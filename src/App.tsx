@@ -1,4 +1,4 @@
-﻿import './App.css'
+import './App.css'
 import { useMemo, useState } from 'react'
 import ProductList, { type DebtRecord, type Product } from './components/ProductList'
 
@@ -7,11 +7,11 @@ type ModuleKey = 'blacklist' | 'products'
 function App() {
   const [activeModule, setActiveModule] = useState<ModuleKey>('blacklist')
 
-  const products: Product[] = [
+  const [products, setProducts] = useState<Product[]>([
     { name: 'Mani salado', quantity: 20, price: 1.25 },
     { name: 'Fruto seco variado', quantity: 14, price: 1.5 },
     { name: 'Gomitas', quantity: 35, price: 0.75 },
-  ]
+  ])
 
   const [debtHistory, setDebtHistory] = useState<DebtRecord[]>([
     {
@@ -34,8 +34,29 @@ function App() {
     },
   ])
 
+  function handleAddProduct(product: Product) {
+    setProducts((current) => [...current, product])
+  }
+
+  function handleUpdateProduct(index: number, product: Product) {
+    setProducts((current) =>
+      current.map((item, itemIndex) => (itemIndex === index ? product : item)),
+    )
+  }
+
+  function handleDeleteProduct(index: number) {
+    setProducts((current) => current.filter((_, itemIndex) => itemIndex !== index))
+  }
+
   // Agrega una deuda nueva o acumula productos al cliente ya existente.
   function handleAddDebt(client: string, debtProducts: { productName: string; quantity: number }[]) {
+    const requiredByProduct = debtProducts.reduce<Record<string, number>>((accumulator, line) => {
+      const normalizedName = line.productName.trim().toLowerCase()
+      if (!normalizedName || line.quantity <= 0) return accumulator
+      accumulator[normalizedName] = (accumulator[normalizedName] ?? 0) + line.quantity
+      return accumulator
+    }, {})
+
     const validLines = debtProducts
       .map((line) => {
         const selectedProduct = products.find((product) => product.name === line.productName)
@@ -49,6 +70,15 @@ function App() {
       .filter((line): line is { name: string; quantity: number; price: number } => !!line)
 
     if (validLines.length === 0) return
+
+    const hasInsufficientStock = Object.entries(requiredByProduct).some(([normalizedName, amount]) => {
+      const selectedProduct = products.find(
+        (product) => product.name.trim().toLowerCase() === normalizedName,
+      )
+      return !selectedProduct || amount > selectedProduct.quantity
+    })
+
+    if (hasInsufficientStock) return
 
     setDebtHistory((current) => {
       const normalizedClient = client.trim().toLowerCase()
@@ -75,6 +105,38 @@ function App() {
 
       return next
     })
+
+    setProducts((currentProducts) =>
+      currentProducts.map((product) => {
+        const normalizedName = product.name.trim().toLowerCase()
+        const consumed = requiredByProduct[normalizedName] ?? 0
+        if (consumed === 0) return product
+        return {
+          ...product,
+          quantity: product.quantity - consumed,
+        }
+      }),
+    )
+  }
+
+  function handleAddDebtPayment(client: string, amount: number) {
+    if (amount <= 0) return
+
+    setDebtHistory((current) =>
+      current.map((record) => {
+        if (record.client.trim().toLowerCase() !== client.trim().toLowerCase()) return record
+
+        return {
+          ...record,
+          payments: [...record.payments, { date: new Date().toISOString().slice(0, 10), amount }],
+        }
+      }),
+    )
+  }
+
+  function handlePayDebt(client: string, pendingAmount: number) {
+    if (pendingAmount <= 0) return
+    handleAddDebtPayment(client, pendingAmount)
   }
 
   const moduleTitle = useMemo(() => {
@@ -115,9 +177,18 @@ function App() {
             showProducts={false}
             availableProducts={products}
             onAddDebt={handleAddDebt}
+            onAddDebtPayment={handleAddDebtPayment}
+            onPayDebt={handlePayDebt}
           />
         ) : (
-          <ProductList products={products} debtHistory={[]} showDebtHistory={false} />
+          <ProductList
+            products={products}
+            debtHistory={[]}
+            showDebtHistory={false}
+            onAddProduct={handleAddProduct}
+            onUpdateProduct={handleUpdateProduct}
+            onDeleteProduct={handleDeleteProduct}
+          />
         )}
       </section>
     </main>

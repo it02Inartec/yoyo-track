@@ -1,4 +1,14 @@
-﻿.product-list {
+.product-list__confirmation {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #065f46;
+  font-weight: 600;
+}
+
+.product-list {
   display: grid;
   gap: 1.5rem;
   padding: 1.5rem;
@@ -77,6 +87,21 @@
 
 .product-list__items li + li {
   margin-top: 0.2rem;
+}
+
+.product-list__row-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.product-list__danger-btn {
+  border: 1px solid #b91c1c;
+  border-radius: 6px;
+  padding: 0.4rem 0.65rem;
+  background: #ef4444;
+  color: #ffffff;
+  font-weight: 500;
+  cursor: pointer;
 }
 
 .product-list__modal-backdrop {
@@ -170,3 +195,31 @@
   color: #111827;
   font-weight: 600;
 }
+
+.product-list__pay-btn {
+  border: 1px solid #047857;
+  border-radius: 6px;
+  padding: 0.4rem 0.65rem;
+  background: #10b981;
+  color: #052e16;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+
+
+.product-list__confirm-modal {
+  width: min(100%, 380px);
+}
+
+.product-list__confirm-text {
+  margin: 0 0 1rem;
+  line-height: 1.4;
+}
+
+.product-list__confirm-danger-btn {
+  border-color: #b91c1c !important;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
