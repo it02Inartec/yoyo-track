@@ -1,5 +1,5 @@
 import './ProductList.css'
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FocusEvent, type FormEvent } from 'react'
 
 export type Product = {
   name: string
@@ -70,6 +70,10 @@ export function ProductList({
   onUpdateProduct,
   onDeleteProduct,
 }: ProductListProps) {
+  function handleSelectOnFocus(e: FocusEvent<HTMLInputElement>) {
+    e.currentTarget.select()
+  }
+
   const confirmationTimeoutRef = useRef<number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [clientName, setClientName] = useState('')
@@ -354,43 +358,45 @@ export function ProductList({
           {products.length === 0 ? (
             <p className="product-list__empty">No hay productos en inventario.</p>
           ) : (
-            <table className="product-list__table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Cantidad</th>
-                  <th>Precio</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((productItem, index) => (
-                  <tr key={`${productItem.name}-${index}`}>
-                    <td>{productItem.name}</td>
-                    <td>{productItem.quantity}</td>
-                    <td>{formatCurrency(productItem.price)}</td>
-                    <td>
-                      <div className="product-list__row-actions">
-                        <button
-                          type="button"
-                          className="product-list__secondary-btn"
-                          onClick={() => openEditProductModal(index)}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          type="button"
-                          className="product-list__danger-btn"
-                          onClick={() => handleProductDelete(index)}
-                        >
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
+            <div className="product-list__table-wrap">
+              <table className="product-list__table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {products.map((productItem, index) => (
+                    <tr key={`${productItem.name}-${index}`}>
+                      <td>{productItem.name}</td>
+                      <td>{productItem.quantity}</td>
+                      <td>{formatCurrency(productItem.price)}</td>
+                      <td>
+                        <div className="product-list__row-actions">
+                          <button
+                            type="button"
+                            className="product-list__secondary-btn"
+                            onClick={() => openEditProductModal(index)}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            className="product-list__danger-btn"
+                            onClick={() => handleProductDelete(index)}
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </article>
       ) : null}
@@ -406,62 +412,64 @@ export function ProductList({
           {pendingDebts.length === 0 ? (
             <p className="product-list__empty">No hay deudas registradas.</p>
           ) : (
-            <table className="product-list__table">
-              <thead>
-                <tr>
-                  <th>Cliente</th>
-                  <th>Productos</th>
-                  <th>Consumido</th>
-                  <th>Abonado</th>
-                  <th>Saldo pendiente</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendingDebts.map((debt, index) => {
-                  const totalConsumed = calculateDebtAmount(debt.products)
-                  const totalPaid = calculatePaidAmount(debt.payments)
-                  const pendingBalance = Math.max(totalConsumed - totalPaid, 0)
+            <div className="product-list__table-wrap">
+              <table className="product-list__table">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Productos</th>
+                    <th>Consumido</th>
+                    <th>Abonado</th>
+                    <th>Saldo pendiente</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingDebts.map((debt, index) => {
+                    const totalConsumed = calculateDebtAmount(debt.products)
+                    const totalPaid = calculatePaidAmount(debt.payments)
+                    const pendingBalance = Math.max(totalConsumed - totalPaid, 0)
 
-                  return (
-                    <tr key={`${debt.client}-${index}`}>
-                      <td>{debt.client}</td>
-                      <td>
-                        <ul className="product-list__items">
-                          {debt.products.map((productItem, productIndex) => (
-                            <li key={`${productItem.name}-${productIndex}`}>
-                              {productItem.quantity} x {productItem.name} (
-                              {formatCurrency(productItem.price)})
-                            </li>
-                          ))}
-                        </ul>
-                      </td>
-                      <td>{formatCurrency(totalConsumed)}</td>
-                      <td>{formatCurrency(totalPaid)}</td>
-                      <td>{formatCurrency(pendingBalance)}</td>
-                      <td>
-                        <div className="product-list__row-actions">
-                          <button
-                            type="button"
-                            className="product-list__secondary-btn"
-                            onClick={() => openPaymentModal(debt.client, pendingBalance)}
-                          >
-                            Abonar
-                          </button>
-                          <button
-                            type="button"
-                            className="product-list__pay-btn"
-                            onClick={() => handlePayDebtClick(debt.client, pendingBalance)}
-                          >
-                            Pagar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                    return (
+                      <tr key={`${debt.client}-${index}`}>
+                        <td>{debt.client}</td>
+                        <td>
+                          <ul className="product-list__items">
+                            {debt.products.map((productItem, productIndex) => (
+                              <li key={`${productItem.name}-${productIndex}`}>
+                                {productItem.quantity} x {productItem.name} (
+                                {formatCurrency(productItem.price)})
+                              </li>
+                            ))}
+                          </ul>
+                        </td>
+                        <td>{formatCurrency(totalConsumed)}</td>
+                        <td>{formatCurrency(totalPaid)}</td>
+                        <td>{formatCurrency(pendingBalance)}</td>
+                        <td>
+                          <div className="product-list__row-actions">
+                            <button
+                              type="button"
+                              className="product-list__secondary-btn"
+                              onClick={() => openPaymentModal(debt.client, pendingBalance)}
+                            >
+                              Abonar
+                            </button>
+                            <button
+                              type="button"
+                              className="product-list__pay-btn"
+                              onClick={() => handlePayDebtClick(debt.client, pendingBalance)}
+                            >
+                              Pagar
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
 
           {isModalOpen ? (
@@ -512,6 +520,7 @@ export function ProductList({
                           min={1}
                           max={item.product ? getAvailableQuantity(item.product) : undefined}
                           value={item.quantity}
+                          onFocus={handleSelectOnFocus}
                           onChange={(e) => handleChangeItem(index, 'quantity', e.target.value)}
                           onBlur={() => handleBlurItem(index, 'quantity')}
                         />
@@ -565,6 +574,7 @@ export function ProductList({
                   max={paymentMaxAmount}
                   step={0.01}
                   value={paymentAmount}
+                  onFocus={handleSelectOnFocus}
                   onChange={(e) => setPaymentAmount(Number(e.target.value))}
                   onBlur={() => setPaymentTouched(true)}
                 />
@@ -620,6 +630,7 @@ export function ProductList({
                   type="number"
                   min={1}
                   value={productForm.quantity}
+                  onFocus={handleSelectOnFocus}
                   onChange={(e) =>
                     setProductForm((current) => ({ ...current, quantity: Number(e.target.value) }))
                   }
@@ -639,6 +650,7 @@ export function ProductList({
                   min={0.01}
                   step={0.01}
                   value={productForm.price}
+                  onFocus={handleSelectOnFocus}
                   onChange={(e) =>
                     setProductForm((current) => ({ ...current, price: Number(e.target.value) }))
                   }

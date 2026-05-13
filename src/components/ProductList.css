@@ -13,6 +13,7 @@
   gap: 1.5rem;
   padding: 1.5rem;
   color: #1f2937;
+  min-width: 0;
 }
 
 .product-list__section {
@@ -49,8 +50,16 @@
   cursor: pointer;
 }
 
+.product-list__table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
 .product-list__table {
   width: 100%;
+  min-width: 680px;
   border-collapse: collapse;
 }
 
@@ -92,6 +101,7 @@
 .product-list__row-actions {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: nowrap;
 }
 
 .product-list__danger-btn {
@@ -221,5 +231,20 @@
   border-color: #b91c1c !important;
   background: #ef4444 !important;
   color: #ffffff !important;
+}
+
+@media (max-width: 900px) {
+  .product-list {
+    padding: 1rem;
+  }
+
+  .product-list__header {
+    flex-wrap: wrap;
+    padding-bottom: 0.75rem;
+  }
+
+  .product-list__add-btn {
+    margin: 0 1rem;
+  }
 }
 

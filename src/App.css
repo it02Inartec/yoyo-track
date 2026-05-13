@@ -47,6 +47,7 @@
 
 .content {
   padding: 1.5rem;
+  min-width: 0;
 }
 
 .content__header h2 {
