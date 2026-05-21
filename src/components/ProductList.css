@@ -98,15 +98,20 @@
 
 .product-list__table th {
   font-weight: 600;
-  background-color: #f9fafb;
+  background-color: #1f2028;
+  color: #d1d5db;
 }
 
 .product-list__table td {
   font-size: 0.95rem;
+  background-color: #1f2028;
+  color: #e5e7eb;
+  border-top-color: #2e303a;
 }
 
-.product-list__table tbody tr:nth-child(even) {
-  background-color: #f9fafb;
+.product-list__table tbody tr:nth-child(even),
+.product-list__table tbody tr:nth-child(odd) {
+  background-color: #1f2028;
 }
 
 /* Ajustes exclusivos para la tabla de deudas (lista negra) */
@@ -152,6 +157,22 @@
 
 .product-list__table--debts .product-list__row-actions {
   flex-wrap: wrap;
+}
+
+.product-list__table--debts th {
+  background-color: #1f2028;
+  color: #d1d5db;
+}
+
+.product-list__table--debts td {
+  background-color: #1f2028;
+  color: #e5e7eb;
+  border-top-color: #2e303a;
+}
+
+.product-list__table--debts tbody tr:nth-child(even),
+.product-list__table--debts tbody tr:nth-child(odd) {
+  background-color: #1f2028;
 }
 
 .product-list__empty {
@@ -527,8 +548,18 @@
 
   /* Table transformation */
   .product-list__table-wrap {
-    overflow-x: visible;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
     padding: 0.75rem;
+  }
+
+  .product-list__table-wrap--debts {
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
   }
 
   .product-list__table {
@@ -622,6 +653,93 @@
 
   .product-list__chips-container {
     justify-content: flex-end;
+  }
+
+  /* Lista negra: mismo comportamiento responsive que Productos */
+  .product-list__table--debts {
+    min-width: 100%;
+    width: 100%;
+    table-layout: auto;
+  }
+
+  .product-list__table--debts thead {
+    display: none;
+  }
+
+  .product-list__table--debts,
+  .product-list__table--debts tbody,
+  .product-list__table--debts tr,
+  .product-list__table--debts td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .product-list__table--debts tr {
+    border: 1px solid #2e303a;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    margin-bottom: 0.85rem;
+    background: #1f2028;
+    padding: 0.85rem 1rem;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .product-list__table--debts td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    padding: 0.6rem 0;
+    border-top: none;
+    border-bottom: 1px solid #2e303a;
+  }
+
+  .product-list__table--debts td:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-top: 0.75rem;
+  }
+
+  .product-list__table--debts td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #9ca3af;
+    text-align: left;
+    margin-right: 1.5rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .product-list__table--debts td,
+  .product-list__table--debts th {
+    width: auto;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .product-list__table--debts .product-list__chips-container {
+    justify-content: flex-end;
+  }
+
+  .product-list__table--debts .product-list__chip-name {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .product-list__table--debts .product-list__row-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .product-list__table--debts .product-list__row-actions button {
+    flex: 1;
+    max-width: 120px;
   }
 }
 

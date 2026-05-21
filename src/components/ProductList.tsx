@@ -478,7 +478,7 @@ export function ProductList({
             {pendingDebts.length === 0 ? (
               <p className="product-list__empty">No hay deudas registradas.</p>
             ) : (
-              <div className="product-list__table-wrap">
+              <div className="product-list__table-wrap product-list__table-wrap--debts">
                 <table className="product-list__table product-list__table--debts">
                   <thead>
                     <tr>
