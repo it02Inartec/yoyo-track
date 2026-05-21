@@ -1,0 +1,305 @@
+.login-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  background: #0d0c11;
+  overflow: hidden;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Glowing dynamic background blobs */
+.login-backdrop-blobs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.45;
+  animation: float-blob 12s infinite ease-in-out alternate;
+}
+
+.blob-1 {
+  top: 15%;
+  left: 10%;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, #aa3bff, #7928ca);
+}
+
+.blob-2 {
+  bottom: 15%;
+  right: 10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #c084fc, #3b82f6);
+  animation-delay: -6s;
+}
+
+@keyframes float-blob {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(30px, -40px) scale(1.1);
+  }
+  100% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+/* Glassmorphism Login Card */
+.login-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 450px;
+  padding: 40px;
+  margin: 20px;
+  background: rgba(18, 17, 24, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 10px 50px rgba(170, 59, 255, 0.15);
+  text-align: left;
+  box-sizing: border-box;
+  animation: card-appear 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-card__header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.login-card__title {
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin: 0 0 10px;
+  background: linear-gradient(135deg, #ffffff, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 12px rgba(170, 59, 255, 0.2);
+}
+
+.login-card__subtitle {
+  font-size: 15px;
+  color: #94939a;
+  margin: 0;
+}
+
+/* Alert Boxes */
+.login-alert {
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.4;
+  animation: alert-slide-in 0.3s ease-out;
+}
+
+@keyframes alert-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-alert--danger {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.login-alert--success {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #a7f3d0;
+}
+
+/* Form Styles */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-form__text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #94939a;
+  margin: 0 0 5px;
+}
+
+.login-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-form__group label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #c084fc;
+}
+
+.login-form__group input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.login-form__group input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #c084fc;
+  box-shadow: 0 0 15px rgba(192, 132, 252, 0.3);
+}
+
+.login-form__group input::placeholder {
+  color: #5d5c66;
+}
+
+/* Buttons */
+.login-form__btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #aa3bff, #8a2be2);
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(170, 59, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.login-form__btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #b854ff, #9b46ff);
+  box-shadow: 0 6px 25px rgba(170, 59, 255, 0.55);
+}
+
+.login-form__btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.login-form__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.login-form__btn--success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+.login-form__btn--success:hover {
+  background: linear-gradient(135deg, #34d399, #10b981) !important;
+  box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5) !important;
+}
+
+.login-form__link-btn {
+  background: none;
+  border: none;
+  color: #94939a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  margin-top: 5px;
+  align-self: center;
+}
+
+.login-form__link-btn:hover:not(:disabled) {
+  color: #c084fc;
+  text-decoration: underline;
+}
+
+/* Master Token Reveal CSS */
+.login-token-reveal {
+  background: rgba(170, 59, 255, 0.08);
+  border: 1px dashed rgba(170, 59, 255, 0.3);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.login-token-reveal__warning {
+  font-size: 13px;
+  color: #fca5a5;
+  margin: 0 0 10px;
+}
+
+.login-token-reveal__box {
+  background: #000000;
+  border-radius: 8px;
+  padding: 12px 8px;
+  margin-bottom: 10px;
+}
+
+.login-token-reveal__box code {
+  font-size: 15px;
+  font-weight: 700;
+  color: #a7f3d0;
+  letter-spacing: 1px;
+}
+
+.login-token-reveal__hint {
+  font-size: 12px;
+  color: #94939a;
+  margin: 0;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 30px 20px;
+    margin: 15px;
+  }
+  
+  .login-card__title {
+    font-size: 32px;
+  }
+}

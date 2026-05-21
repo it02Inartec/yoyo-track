@@ -2,6 +2,7 @@ import './ProductList.css'
 import { useEffect, useRef, useState, type FocusEvent, type FormEvent } from 'react'
 
 export type Product = {
+  id?: string
   name: string
   quantity: number
   price: number
@@ -348,129 +349,225 @@ export function ProductList({
         </p>
       ) : null}
       {showProducts ? (
-        <article className="product-list__section">
-          <div className="product-list__header">
-            <h2 className="product-list__title">Inventario</h2>
+        <div className="product-list__container">
+          <div className="product-list__actions-bar">
+            <h3 className="product-list__section-title">Inventario</h3>
             <button className="product-list__add-btn" type="button" onClick={openCreateProductModal}>
-              Agregar producto
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="product-list__btn-icon"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Agregar</span>
             </button>
           </div>
-          {products.length === 0 ? (
-            <p className="product-list__empty">No hay productos en inventario.</p>
-          ) : (
-            <div className="product-list__table-wrap">
-              <table className="product-list__table">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((productItem, index) => (
-                    <tr key={`${productItem.name}-${index}`}>
-                      <td>{productItem.name}</td>
-                      <td>{productItem.quantity}</td>
-                      <td>{formatCurrency(productItem.price)}</td>
-                      <td>
-                        <div className="product-list__row-actions">
-                          <button
-                            type="button"
-                            className="product-list__secondary-btn"
-                            onClick={() => openEditProductModal(index)}
-                          >
-                            Editar
-                          </button>
-                          <button
-                            type="button"
-                            className="product-list__danger-btn"
-                            onClick={() => handleProductDelete(index)}
-                          >
-                            Eliminar
-                          </button>
-                        </div>
-                      </td>
+          <article className="product-list__section">
+            {products.length === 0 ? (
+              <p className="product-list__empty">No hay productos en inventario.</p>
+            ) : (
+              <div className="product-list__table-wrap">
+                <table className="product-list__table">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Cantidad</th>
+                      <th>Precio</th>
+                      <th>Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </article>
-      ) : null}
-
-      {showDebtHistory ? (
-        <article className="product-list__section">
-          <div className="product-list__header">
-            <h2 className="product-list__title">Deudas</h2>
-            <button className="product-list__add-btn" type="button" onClick={openDebtModal}>
-              Agregar deuda
-            </button>
-          </div>
-          {pendingDebts.length === 0 ? (
-            <p className="product-list__empty">No hay deudas registradas.</p>
-          ) : (
-            <div className="product-list__table-wrap">
-              <table className="product-list__table">
-                <thead>
-                  <tr>
-                    <th>Cliente</th>
-                    <th>Productos</th>
-                    <th>Consumido</th>
-                    <th>Abonado</th>
-                    <th>Saldo pendiente</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pendingDebts.map((debt, index) => {
-                    const totalConsumed = calculateDebtAmount(debt.products)
-                    const totalPaid = calculatePaidAmount(debt.payments)
-                    const pendingBalance = Math.max(totalConsumed - totalPaid, 0)
-
-                    return (
-                      <tr key={`${debt.client}-${index}`}>
-                        <td>{debt.client}</td>
-                        <td>
-                          <ul className="product-list__items">
-                            {debt.products.map((productItem, productIndex) => (
-                              <li key={`${productItem.name}-${productIndex}`}>
-                                {productItem.quantity} x {productItem.name} (
-                                {formatCurrency(productItem.price)})
-                              </li>
-                            ))}
-                          </ul>
-                        </td>
-                        <td>{formatCurrency(totalConsumed)}</td>
-                        <td>{formatCurrency(totalPaid)}</td>
-                        <td>{formatCurrency(pendingBalance)}</td>
-                        <td>
+                  </thead>
+                  <tbody>
+                    {products.map((productItem, index) => (
+                      <tr key={`${productItem.name}-${index}`}>
+                        <td data-label="Nombre">{productItem.name}</td>
+                        <td data-label="Cantidad">{productItem.quantity}</td>
+                        <td data-label="Precio">{formatCurrency(productItem.price)}</td>
+                        <td data-label="Acciones">
                           <div className="product-list__row-actions">
                             <button
                               type="button"
                               className="product-list__secondary-btn"
-                              onClick={() => openPaymentModal(debt.client, pendingBalance)}
+                              onClick={() => openEditProductModal(index)}
                             >
-                              Abonar
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="product-list__btn-icon product-list__btn-icon--edit"
+                              >
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                              </svg>
+                              <span>Editar</span>
                             </button>
                             <button
                               type="button"
-                              className="product-list__pay-btn"
-                              onClick={() => handlePayDebtClick(debt.client, pendingBalance)}
+                              className="product-list__danger-btn"
+                              onClick={() => handleProductDelete(index)}
                             >
-                              Pagar
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="product-list__btn-icon product-list__btn-icon--trash"
+                              >
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                              </svg>
+                              <span>Eliminar</span>
                             </button>
                           </div>
                         </td>
                       </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </article>
+        </div>
+      ) : null}
+
+      {showDebtHistory ? (
+        <div className="product-list__container">
+          <div className="product-list__actions-bar">
+            <h3 className="product-list__section-title">Deudas</h3>
+            <button className="product-list__add-btn" type="button" onClick={openDebtModal}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="product-list__btn-icon"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Agregar</span>
+            </button>
+          </div>
+          <article className="product-list__section">
+            {pendingDebts.length === 0 ? (
+              <p className="product-list__empty">No hay deudas registradas.</p>
+            ) : (
+              <div className="product-list__table-wrap">
+                <table className="product-list__table product-list__table--debts">
+                  <thead>
+                    <tr>
+                      <th>Cliente</th>
+                      <th>Productos</th>
+                      <th>Consumido</th>
+                      <th>Abonado</th>
+                      <th>Saldo pendiente</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pendingDebts.map((debt, index) => {
+                      const totalConsumed = calculateDebtAmount(debt.products)
+                      const totalPaid = calculatePaidAmount(debt.payments)
+                      const pendingBalance = Math.max(totalConsumed - totalPaid, 0)
+
+                      return (
+                        <tr key={`${debt.client}-${index}`}>
+                          <td data-label="Cliente">{debt.client}</td>
+                          <td data-label="Productos">
+                            <div className="product-list__chips-container">
+                              {debt.products.map((productItem, productIndex) => (
+                                <span key={`${productItem.name}-${productIndex}`} className="product-list__chip">
+                                  <span className="product-list__chip-quantity">{productItem.quantity}</span>
+                                  <span className="product-list__chip-name">{productItem.name}</span>
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                          <td data-label="Consumido">{formatCurrency(totalConsumed)}</td>
+                          <td data-label="Abonado">{formatCurrency(totalPaid)}</td>
+                          <td data-label="Saldo pendiente">{formatCurrency(pendingBalance)}</td>
+                          <td data-label="Acciones">
+                            <div className="product-list__row-actions">
+                              <button
+                                type="button"
+                                className="product-list__secondary-btn"
+                                onClick={() => openPaymentModal(debt.client, pendingBalance)}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="14"
+                                  height="14"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="product-list__btn-icon product-list__btn-icon--card"
+                                >
+                                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                  <line x1="1" y1="10" x2="23" y2="10"></line>
+                                </svg>
+                                <span>Abonar</span>
+                              </button>
+                              <button
+                                type="button"
+                                className="product-list__pay-btn"
+                                onClick={() => handlePayDebtClick(debt.client, pendingBalance)}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="14"
+                                  height="14"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="product-list__btn-icon product-list__btn-icon--pay"
+                                >
+                                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                <span>Pagar</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </article>
 
           {isModalOpen ? (
             <div className="product-list__modal-backdrop" role="dialog" aria-modal="true">
@@ -545,20 +642,68 @@ export function ProductList({
                     className="product-list__secondary-btn"
                     onClick={handleAddItem}
                   >
-                    Agregar otro producto
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="product-list__btn-icon product-list__btn-icon--plus"
+                    >
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Agregar otro producto</span>
                   </button>
 
                   <div className="product-list__form-actions">
                     <button type="button" onClick={closeDebtModal}>
-                      Cancelar
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="product-list__btn-icon product-list__btn-icon--cancel"
+                      >
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      <span>Cancelar</span>
                     </button>
-                    <button type="submit">Guardar</button>
+                    <button type="submit">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="product-list__btn-icon product-list__btn-icon--save"
+                      >
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                      </svg>
+                      <span>Guardar</span>
+                    </button>
                   </div>
                 </form>
               </div>
             </div>
           ) : null}
-        </article>
+        </div>
       ) : null}
 
       {isPaymentModalOpen ? (
@@ -590,9 +735,42 @@ export function ProductList({
 
               <div className="product-list__form-actions">
                 <button type="button" onClick={closePaymentModal}>
-                  Cancelar
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="product-list__btn-icon product-list__btn-icon--cancel"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  <span>Cancelar</span>
                 </button>
-                <button type="submit">Guardar abono</button>
+                <button type="submit">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="product-list__btn-icon product-list__btn-icon--save"
+                  >
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                  </svg>
+                  <span>Guardar abono</span>
+                </button>
               </div>
             </form>
           </div>
@@ -665,10 +843,64 @@ export function ProductList({
 
               <div className="product-list__form-actions">
                 <button type="button" onClick={closeProductModal}>
-                  Cancelar
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="product-list__btn-icon product-list__btn-icon--cancel"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  <span>Cancelar</span>
                 </button>
                 <button type="submit">
-                  {productModalMode === 'create' ? 'Agregar' : 'Guardar cambios'}
+                  {productModalMode === 'create' ? (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="product-list__btn-icon product-list__btn-icon--plus"
+                      >
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                      </svg>
+                      <span>Agregar</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="product-list__btn-icon product-list__btn-icon--save"
+                      >
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                      </svg>
+                      <span>Guardar cambios</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -687,14 +919,43 @@ export function ProductList({
             </p>
             <div className="product-list__form-actions">
               <button type="button" onClick={() => setConfirmAction(null)}>
-                Cancelar
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="product-list__btn-icon product-list__btn-icon--cancel"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                <span>Cancelar</span>
               </button>
               <button
                 type="button"
                 className="product-list__confirm-danger-btn"
                 onClick={handleConfirmAction}
               >
-                Confirmar
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="product-list__btn-icon product-list__btn-icon--confirm"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Confirmar</span>
               </button>
             </div>
           </div>
