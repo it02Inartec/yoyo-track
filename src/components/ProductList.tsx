@@ -36,6 +36,8 @@ type ProductListProps = {
 }
 
 type ProductFormMode = 'create' | 'edit'
+type DebtItem = { id: string; product: string; quantity: number }
+type DebtItemTouched = { id: string; product: boolean; quantity: boolean }
 type ConfirmAction =
   | { type: 'delete-product'; index: number; name: string }
   | { type: 'pay-debt'; client: string; pendingAmount: number }
@@ -60,6 +62,40 @@ function calculatePaidAmount(payments: { date: string; amount: number }[]) {
 function handleSelectOnFocus(e: FocusEvent<HTMLInputElement>) {
   e.currentTarget.select()
 }
+
+function buildDebtRequirements(debtItems: DebtItem[]) {
+  return debtItems.reduce<Record<string, number>>((accumulator, item) => {
+    const normalizedName = item.product.trim().toLowerCase()
+    if (!normalizedName || item.quantity <= 0) return accumulator
+    accumulator[normalizedName] = (accumulator[normalizedName] ?? 0) + item.quantity
+    return accumulator
+  }, {})
+}
+
+function hasInsufficientAccumulatedStock(
+  requiredByProduct: Record<string, number>,
+  availableProducts: Product[],
+) {
+  return Object.entries(requiredByProduct).some(([normalizedName, requiredQuantity]) => {
+    const selectedProduct = availableProducts.find(
+      (product) => product.name.trim().toLowerCase() === normalizedName,
+    )
+    return !selectedProduct || requiredQuantity > selectedProduct.quantity
+  })
+}
+
+function getDebtRecordKey(debt: DebtRecord) {
+  const productSignature = debt.products
+    .map((item) => `${item.name}:${item.quantity}:${item.price}`)
+    .join('|')
+  const paymentSignature = debt.payments.map((payment) => `${payment.date}:${payment.amount}`).join('|')
+  return `${debt.client}::${productSignature}::${paymentSignature}`
+}
+
+function getDebtProductChipKey(productItem: { name: string; quantity: number; price: number }) {
+  return `${productItem.name}:${productItem.quantity}:${productItem.price}`
+}
+
 export function ProductList({
   products,
   debtHistory,
@@ -73,13 +109,34 @@ export function ProductList({
   onUpdateProduct,
   onDeleteProduct,
 }: Readonly<ProductListProps>) {
-  
+
   const confirmationTimeoutRef = useRef<number | null>(null)
+  const debtItemSequenceRef = useRef(0)
+
+  const createDebtItem = (productName?: string): DebtItem => {
+    debtItemSequenceRef.current += 1
+    return {
+      id: `debt-item-${debtItemSequenceRef.current}`,
+      product: productName ?? availableProducts[0]?.name ?? '',
+      quantity: 1,
+    }
+  }
+
+  const createDebtItemTouched = (itemId: string): DebtItemTouched => {
+    return { id: itemId, product: false, quantity: false }
+  }
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [clientName, setClientName] = useState('')
-  const [debtItems, setDebtItems] = useState([{ product: '', quantity: 1 }])
+  const [debtItems, setDebtItems] = useState<DebtItem[]>(() => {
+    const initialItem: DebtItem = { id: 'debt-item-0', product: '', quantity: 1 }
+    debtItemSequenceRef.current = 0
+    return [initialItem]
+  })
   const [nameTouched, setNameTouched] = useState(false)
-  const [itemTouched, setItemTouched] = useState([{ product: false, quantity: false }])
+  const [itemTouched, setItemTouched] = useState<DebtItemTouched[]>([
+    { id: 'debt-item-0', product: false, quantity: false },
+  ])
 
   const [isProductModalOpen, setIsProductModalOpen] = useState(false)
   const [productModalMode, setProductModalMode] = useState<ProductFormMode>('create')
@@ -121,7 +178,7 @@ export function ProductList({
     }
   }, [])
 
-  function showConfirmation(message: string) {
+  const showConfirmation = (message: string) => {
     setConfirmationMessage(message)
     if (confirmationTimeoutRef.current !== null) {
       globalThis.clearTimeout(confirmationTimeoutRef.current)
@@ -131,19 +188,19 @@ export function ProductList({
     }, 2600)
   }
 
-  function resetProductForm() {
+  const resetProductForm = () => {
     setProductForm({ name: '', quantity: 1, price: 0 })
     setProductFormTouched({ name: false, quantity: false, price: false })
     setEditingProductIndex(null)
   }
 
-  function openCreateProductModal() {
+  const openCreateProductModal = () => {
     resetProductForm()
     setProductModalMode('create')
     setIsProductModalOpen(true)
   }
 
-  function openEditProductModal(index: number) {
+  const openEditProductModal = (index: number) => {
     const selectedProduct = products[index]
     if (!selectedProduct) return
 
@@ -154,12 +211,12 @@ export function ProductList({
     setIsProductModalOpen(true)
   }
 
-  function closeProductModal() {
+  const closeProductModal = () => {
     setIsProductModalOpen(false)
     resetProductForm()
   }
 
-  function handleProductDelete(index: number) {
+  const handleProductDelete = (index: number) => {
     if (!onDeleteProduct) return
     const selectedProduct = products[index]
     if (!selectedProduct) return
@@ -170,7 +227,7 @@ export function ProductList({
     })
   }
 
-  function handleProductSubmit(e: SubmitEvent<HTMLFormElement>) {
+  const handleProductSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!onAddProduct && !onUpdateProduct) return
@@ -201,19 +258,20 @@ export function ProductList({
     closeProductModal()
   }
 
-  function openDebtModal() {
+  const openDebtModal = () => {
+    const firstItem = createDebtItem()
     setClientName('')
-    setDebtItems([{ product: availableProducts[0]?.name ?? '', quantity: 1 }])
+    setDebtItems([firstItem])
     setNameTouched(false)
-    setItemTouched([{ product: false, quantity: false }])
+    setItemTouched([createDebtItemTouched(firstItem.id)])
     setIsModalOpen(true)
   }
 
-  function closeDebtModal() {
+  const closeDebtModal = () => {
     setIsModalOpen(false)
   }
 
-  function openPaymentModal(client: string, pendingAmount: number) {
+  const openPaymentModal = (client: string, pendingAmount: number) => {
     setPaymentClient(client)
     setPaymentMaxAmount(pendingAmount)
     setPaymentAmount(Number(pendingAmount.toFixed(2)))
@@ -221,7 +279,7 @@ export function ProductList({
     setIsPaymentModalOpen(true)
   }
 
-  function closePaymentModal() {
+  const closePaymentModal = () => {
     setIsPaymentModalOpen(false)
     setPaymentClient('')
     setPaymentAmount(0)
@@ -229,7 +287,7 @@ export function ProductList({
     setPaymentTouched(false)
   }
 
-  function handleSavePayment(e: SubmitEvent<HTMLFormElement>) {
+  const handleSavePayment = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!onAddDebtPayment) return
 
@@ -242,7 +300,7 @@ export function ProductList({
     closePaymentModal()
   }
 
-  function handlePayDebtClick(client: string, pendingAmount: number) {
+  const handlePayDebtClick = (client: string, pendingAmount: number) => {
     if (!onPayDebt || pendingAmount <= 0) return
     setConfirmAction({
       type: 'pay-debt',
@@ -251,7 +309,7 @@ export function ProductList({
     })
   }
 
-  function handleConfirmAction() {
+  const handleConfirmAction = () => {
     if (!confirmAction) return
 
     if (confirmAction.type === 'delete-product') {
@@ -267,66 +325,53 @@ export function ProductList({
     setConfirmAction(null)
   }
 
-  function handleAddItem() {
-    setDebtItems((current) => [
-      ...current,
-      { product: availableProducts[0]?.name ?? '', quantity: 1 },
-    ])
-    setItemTouched((current) => [...current, { product: false, quantity: false }])
+  const handleAddItem = () => {
+    const nextItem = createDebtItem()
+    setDebtItems((current) => [...current, nextItem])
+    setItemTouched((current) => [...current, createDebtItemTouched(nextItem.id)])
   }
 
-  function handleChangeItem(index: number, key: 'product' | 'quantity', value: string) {
+  const handleChangeItem = (itemId: string, key: 'product' | 'quantity', value: string) => {
     setDebtItems((current) =>
-      current.map((item, itemIndex) => {
-        if (itemIndex !== index) return item
+      current.map((item) => {
+        if (item.id !== itemId) return item
         if (key === 'quantity') return { ...item, quantity: Number(value) }
         return { ...item, product: value }
       }),
     )
   }
 
-  function handleBlurItem(index: number, key: 'product' | 'quantity') {
+  const handleBlurItem = (itemId: string, key: 'product' | 'quantity') => {
     setItemTouched((current) =>
-      current.map((item, itemIndex) => {
-        if (itemIndex !== index) return item
+      current.map((item) => {
+        if (item.id !== itemId) return item
         return { ...item, [key]: true }
       }),
     )
   }
 
-  function getAvailableQuantity(productName: string) {
+  const getAvailableQuantity = (productName: string) => {
     const selectedProduct = availableProducts.find((product) => product.name === productName)
     return selectedProduct?.quantity ?? 0
   }
 
-  function handleSaveDebt(e: SubmitEvent<HTMLFormElement>) {
+  const handleSaveDebt = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!onAddDebt) return
     setNameTouched(true)
-    setItemTouched((current) => current.map(() => ({ product: true, quantity: true })))
+    setItemTouched((current) =>
+      current.map((item) => ({ ...item, product: true, quantity: true })),
+    )
 
     const isNameValid = clientName.trim().length > 0
     const hasInvalidItems = debtItems.some((item) => {
       if (!item.product || item.quantity <= 0) return true
       return item.quantity > getAvailableQuantity(item.product)
     })
-    const requiredByProduct = debtItems.reduce<Record<string, number>>((accumulator, item) => {
-      const normalizedName = item.product.trim().toLowerCase()
-      if (!normalizedName || item.quantity <= 0) return accumulator
-      accumulator[normalizedName] = (accumulator[normalizedName] ?? 0) + item.quantity
-      return accumulator
-    }, {})
+    const requiredByProduct = buildDebtRequirements(debtItems)
+    const hasInsufficientStock = hasInsufficientAccumulatedStock(requiredByProduct, availableProducts)
 
-    const hasInsufficientAccumulatedStock = Object.entries(requiredByProduct).some(
-      ([normalizedName, requiredQuantity]) => {
-        const selectedProduct = availableProducts.find(
-          (product) => product.name.trim().toLowerCase() === normalizedName,
-        )
-        return !selectedProduct || requiredQuantity > selectedProduct.quantity
-      },
-    )
-
-    if (!isNameValid || hasInvalidItems || hasInsufficientAccumulatedStock) return
+    if (!isNameValid || hasInvalidItems || hasInsufficientStock) return
 
     const debtProducts = debtItems.map((item) => ({
       productName: item.product,
@@ -386,7 +431,7 @@ export function ProductList({
                   </thead>
                   <tbody>
                     {products.map((productItem, index) => (
-                      <tr key={`${productItem.name}-${index}`}>
+                      <tr key={productItem.id ?? productItem.name}>
                         <td data-label="Nombre">{productItem.name}</td>
                         <td data-label="Cantidad">{productItem.quantity}</td>
                         <td data-label="Precio">{formatCurrency(productItem.price)}</td>
@@ -490,18 +535,18 @@ export function ProductList({
                     </tr>
                   </thead>
                   <tbody>
-                    {pendingDebts.map((debt, index) => {
+                    {pendingDebts.map((debt) => {
                       const totalConsumed = calculateDebtAmount(debt.products)
                       const totalPaid = calculatePaidAmount(debt.payments)
                       const pendingBalance = Math.max(totalConsumed - totalPaid, 0)
 
                       return (
-                        <tr key={`${debt.client}-${index}`}>
+                        <tr key={getDebtRecordKey(debt)}>
                           <td data-label="Cliente">{debt.client}</td>
                           <td data-label="Productos">
                             <div className="product-list__chips-container">
-                              {debt.products.map((productItem, productIndex) => (
-                                <span key={`${productItem.name}-${productIndex}`} className="product-list__chip">
+                              {debt.products.map((productItem) => (
+                                <span key={getDebtProductChipKey(productItem)} className="product-list__chip">
                                   <span className="product-list__chip-quantity">{productItem.quantity}</span>
                                   <span className="product-list__chip-name">{productItem.name}</span>
                                 </span>
@@ -585,24 +630,26 @@ export function ProductList({
                     ) : null}
                   </label>
 
-                  {debtItems.map((item, index) => (
-                    <div className="product-list__item-row" key={`item-${index}`}>
+                  {debtItems.map((item) => {
+                    const touched = itemTouched.find((stateItem) => stateItem.id === item.id)
+                    return (
+                    <div className="product-list__item-row" key={item.id}>
                       <label>
                         Producto <select
                           value={item.product}
-                          onChange={(e) => handleChangeItem(index, 'product', e.target.value)}
-                          onBlur={() => handleBlurItem(index, 'product')}
+                          onChange={(e) => handleChangeItem(item.id, 'product', e.target.value)}
+                          onBlur={() => handleBlurItem(item.id, 'product')}
                         >
                           <option value="" disabled>
                             Selecciona un producto
                           </option>
                           {availableProducts.map((productItem) => (
-                            <option key={`${productItem.name}-${index}`} value={productItem.name}>
+                            <option key={productItem.id ?? productItem.name} value={productItem.name}>
                               {productItem.name} (Disponibles: {productItem.quantity})
                             </option>
                           ))}
                         </select>
-                        {itemTouched[index]?.product && !item.product ? (
+                        {touched?.product && !item.product ? (
                           <span className="product-list__error">Selecciona un producto.</span>
                         ) : null}
                       </label>
@@ -614,15 +661,15 @@ export function ProductList({
                           max={item.product ? getAvailableQuantity(item.product) : undefined}
                           value={item.quantity}
                           onFocus={handleSelectOnFocus}
-                          onChange={(e) => handleChangeItem(index, 'quantity', e.target.value)}
-                          onBlur={() => handleBlurItem(index, 'quantity')}
+                          onChange={(e) => handleChangeItem(item.id, 'quantity', e.target.value)}
+                          onBlur={() => handleBlurItem(item.id, 'quantity')}
                         />
-                        {itemTouched[index]?.quantity && item.quantity <= 0 ? (
+                        {touched?.quantity && item.quantity <= 0 ? (
                           <span className="product-list__error">
                             La cantidad debe ser mayor a 0.
                           </span>
                         ) : null}
-                        {itemTouched[index]?.quantity &&
+                        {touched?.quantity &&
                         item.product &&
                         item.quantity > getAvailableQuantity(item.product) ? (
                           <span className="product-list__error">
@@ -631,7 +678,7 @@ export function ProductList({
                         ) : null}
                       </label>
                     </div>
-                  ))}
+                  )})}
 
                   <button
                     type="button"
