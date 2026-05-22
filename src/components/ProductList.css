@@ -35,7 +35,7 @@
 
 .product-list__section-title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-h);
 }
@@ -50,7 +50,7 @@
   color: #ffffff;
   padding: 0.5rem 1rem;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   cursor: pointer;
   box-shadow: 0 4px 12px var(--accent-bg);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -65,11 +65,6 @@
 
 .product-list__add-btn:active {
   transform: translateY(0);
-}
-
-.product-list__btn-icon {
-  stroke: #ffffff;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .product-list__add-btn:hover .product-list__btn-icon {
@@ -103,7 +98,7 @@
 }
 
 .product-list__table td {
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   background-color: #1f2028;
   color: #e5e7eb;
   border-top-color: #2e303a;
@@ -203,7 +198,7 @@
   border: 1px solid #dc2626;
   border-radius: 8px;
   padding: 0.45rem 0.8rem;
-  background: #ef4444;
+  background: #dc2626;
   color: #ffffff;
   font-weight: 600;
   cursor: pointer;
@@ -228,6 +223,13 @@
   place-items: center;
   padding: 1rem;
   z-index: 1000;
+
+  border: none;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .product-list__modal {
@@ -243,7 +245,7 @@
 .product-list__modal-title {
   margin: 0 0 1.25rem;
   color: var(--text-h);
-  font-size: 1.25rem;
+  font-size: 1rem;
 }
 
 .product-list__form {
@@ -254,7 +256,7 @@
 .product-list__form label {
   display: grid;
   gap: 0.35rem;
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   color: var(--text);
   font-weight: 500;
 }
@@ -330,7 +332,7 @@
   background: var(--code-bg);
   color: var(--text-h);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -361,10 +363,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  border: 1px solid #059669;
+  border: 1px solid #065f46;
   border-radius: 8px;
   padding: 0.45rem 0.8rem;
-  background: #10b981;
+  background: #047857;
   color: #ffffff;
   font-weight: 600;
   cursor: pointer;
@@ -372,7 +374,7 @@
 }
 
 .product-list__pay-btn:hover {
-  background: #059669;
+  background: #047f58;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
 }
@@ -397,7 +399,7 @@
   gap: 0.4rem;
   border: 1px solid #dc2626 !important;
   border-radius: 8px !important;
-  background: #ef4444 !important;
+  background: #dc2626 !important;
   color: #ffffff !important;
   font-weight: 600 !important;
   box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2) !important;
@@ -415,6 +417,7 @@
 .product-list__btn-icon {
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
+  stroke: #ffffff;
 }
 
 /* 1. Lápiz (Editar) - inclinación al escribir */
@@ -479,7 +482,7 @@
   color: #92400e; /* Amber-800 */
   border: 1px solid #fde68a; /* Amber-200 */
   border-radius: 9999px;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 600;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -491,10 +494,10 @@
 }
 
 .product-list__chip-quantity {
-  background-color: #f59e0b; /* Amber-500 */
+  background-color: #b45309; /* Amber-500 */
   color: #ffffff;
   font-weight: 700;
-  font-size: 0.72rem;
+  font-size: 0.6rem;
   min-width: 18px;
   height: 18px;
   padding: 0 4px;
@@ -511,11 +514,12 @@
 @media (prefers-color-scheme: dark) {
   .product-list__chip {
     background-color: #78350f22; /* Soft dark amber */
-    color: #f59e0b;
+    color: #fbbf24;
     border-color: #78350f88;
   }
   .product-list__chip-quantity {
     background-color: #d97706;
+    color: #451a03;
   }
 }
 
@@ -536,14 +540,14 @@
   }
 
   .product-list__section-title {
-    font-size: 1.15rem;
+    font-size: 1rem;
   }
 
   .product-list__add-btn {
     margin: 0;
     width: auto;
     padding: 0.45rem 0.85rem;
-    font-size: 0.85rem;
+    font-size: 0.7rem;
   }
 
   /* Table transformation */
@@ -603,7 +607,7 @@
     border-top: none;
     border-bottom: 1px solid #f3f4f6;
     text-align: right;
-    font-size: 0.92rem;
+    font-size: 0.8rem;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -626,7 +630,7 @@
     color: #4b5563;
     text-align: left;
     margin-right: 1.5rem;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -648,7 +652,7 @@
     max-width: 120px;
     text-align: center;
     padding: 0.45rem;
-    font-size: 0.85rem;
+    font-size: 0.7rem;
   }
 
   .product-list__chips-container {
@@ -708,7 +712,7 @@
     color: #9ca3af;
     text-align: left;
     margin-right: 1.5rem;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     white-space: nowrap;

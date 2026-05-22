@@ -1,5 +1,5 @@
 import './ProductList.css'
-import { useEffect, useRef, useState, type FocusEvent, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FocusEvent, type SubmitEvent } from 'react'
 
 export type Product = {
   id?: string
@@ -57,7 +57,9 @@ function calculateDebtAmount(products: { name: string; quantity: number; price: 
 function calculatePaidAmount(payments: { date: string; amount: number }[]) {
   return payments.reduce((accumulator, payment) => accumulator + payment.amount, 0)
 }
-
+function handleSelectOnFocus(e: FocusEvent<HTMLInputElement>) {
+  e.currentTarget.select()
+}
 export function ProductList({
   products,
   debtHistory,
@@ -70,11 +72,8 @@ export function ProductList({
   onAddProduct,
   onUpdateProduct,
   onDeleteProduct,
-}: ProductListProps) {
-  function handleSelectOnFocus(e: FocusEvent<HTMLInputElement>) {
-    e.currentTarget.select()
-  }
-
+}: Readonly<ProductListProps>) {
+  
   const confirmationTimeoutRef = useRef<number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [clientName, setClientName] = useState('')
@@ -117,7 +116,7 @@ export function ProductList({
   useEffect(() => {
     return () => {
       if (confirmationTimeoutRef.current !== null) {
-        window.clearTimeout(confirmationTimeoutRef.current)
+        globalThis.clearTimeout(confirmationTimeoutRef.current)
       }
     }
   }, [])
@@ -125,9 +124,9 @@ export function ProductList({
   function showConfirmation(message: string) {
     setConfirmationMessage(message)
     if (confirmationTimeoutRef.current !== null) {
-      window.clearTimeout(confirmationTimeoutRef.current)
+      globalThis.clearTimeout(confirmationTimeoutRef.current)
     }
-    confirmationTimeoutRef.current = window.setTimeout(() => {
+    confirmationTimeoutRef.current = globalThis.setTimeout(() => {
       setConfirmationMessage('')
     }, 2600)
   }
@@ -171,7 +170,7 @@ export function ProductList({
     })
   }
 
-  function handleProductSubmit(e: FormEvent<HTMLFormElement>) {
+  function handleProductSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
 
     if (!onAddProduct && !onUpdateProduct) return
@@ -230,7 +229,7 @@ export function ProductList({
     setPaymentTouched(false)
   }
 
-  function handleSavePayment(e: FormEvent<HTMLFormElement>) {
+  function handleSavePayment(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!onAddDebtPayment) return
 
@@ -300,7 +299,7 @@ export function ProductList({
     return selectedProduct?.quantity ?? 0
   }
 
-  function handleSaveDebt(e: FormEvent<HTMLFormElement>) {
+  function handleSaveDebt(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!onAddDebt) return
     setNameTouched(true)
@@ -344,9 +343,9 @@ export function ProductList({
   return (
     <section className="product-list">
       {confirmationMessage ? (
-        <p className="product-list__confirmation" role="status">
+        <output className="product-list__confirmation">
           {confirmationMessage}
-        </p>
+        </output>
       ) : null}
       {showProducts ? (
         <div className="product-list__container">
@@ -570,13 +569,12 @@ export function ProductList({
           </article>
 
           {isModalOpen ? (
-            <div className="product-list__modal-backdrop" role="dialog" aria-modal="true">
+            <dialog className="product-list__modal-backdrop" open>
               <div className="product-list__modal">
                 <h3 className="product-list__modal-title">Registrar deuda</h3>
                 <form className="product-list__form" onSubmit={handleSaveDebt} noValidate>
                   <label>
-                    Nombre
-                    <input
+                    Nombre <input
                       type="text"
                       value={clientName}
                       onChange={(e) => setClientName(e.target.value)}
@@ -590,8 +588,7 @@ export function ProductList({
                   {debtItems.map((item, index) => (
                     <div className="product-list__item-row" key={`item-${index}`}>
                       <label>
-                        Producto
-                        <select
+                        Producto <select
                           value={item.product}
                           onChange={(e) => handleChangeItem(index, 'product', e.target.value)}
                           onBlur={() => handleBlurItem(index, 'product')}
@@ -611,8 +608,7 @@ export function ProductList({
                       </label>
 
                       <label>
-                        Cantidad
-                        <input
+                        Cantidad <input
                           type="number"
                           min={1}
                           max={item.product ? getAvailableQuantity(item.product) : undefined}
@@ -701,19 +697,18 @@ export function ProductList({
                   </div>
                 </form>
               </div>
-            </div>
+            </dialog>
           ) : null}
         </div>
       ) : null}
 
       {isPaymentModalOpen ? (
-        <div className="product-list__modal-backdrop" role="dialog" aria-modal="true">
+        <dialog className="product-list__modal-backdrop" open>
           <div className="product-list__modal">
             <h3 className="product-list__modal-title">Abonar deuda de {paymentClient}</h3>
             <form className="product-list__form" onSubmit={handleSavePayment} noValidate>
               <label>
-                Monto abonado
-                <input
+                Monto abonado <input
                   type="number"
                   min={0.01}
                   max={paymentMaxAmount}
@@ -774,19 +769,18 @@ export function ProductList({
               </div>
             </form>
           </div>
-        </div>
+        </dialog>
       ) : null}
 
       {isProductModalOpen ? (
-        <div className="product-list__modal-backdrop" role="dialog" aria-modal="true">
+        <dialog className="product-list__modal-backdrop" open>
           <div className="product-list__modal">
             <h3 className="product-list__modal-title">
               {productModalMode === 'create' ? 'Agregar producto' : 'Editar producto'}
             </h3>
             <form className="product-list__form" onSubmit={handleProductSubmit} noValidate>
               <label>
-                Nombre
-                <input
+                Nombre <input
                   type="text"
                   value={productForm.name}
                   onChange={(e) => setProductForm((current) => ({ ...current, name: e.target.value }))}
@@ -803,8 +797,7 @@ export function ProductList({
               </label>
 
               <label>
-                Cantidad
-                <input
+                Cantidad <input
                   type="number"
                   min={1}
                   value={productForm.quantity}
@@ -822,8 +815,7 @@ export function ProductList({
               </label>
 
               <label>
-                Precio
-                <input
+                Precio <input
                   type="number"
                   min={0.01}
                   step={0.01}
@@ -905,11 +897,11 @@ export function ProductList({
               </div>
             </form>
           </div>
-        </div>
+        </dialog>
       ) : null}
 
       {confirmAction ? (
-        <div className="product-list__modal-backdrop" role="dialog" aria-modal="true">
+        <dialog className="product-list__modal-backdrop" open>
           <div className="product-list__modal product-list__confirm-modal">
             <h3 className="product-list__modal-title">Confirmar accion</h3>
             <p className="product-list__confirm-text">
@@ -959,7 +951,7 @@ export function ProductList({
               </button>
             </div>
           </div>
-        </div>
+        </dialog>
       ) : null}
     </section>
   )
